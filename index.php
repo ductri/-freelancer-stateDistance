@@ -33,6 +33,7 @@ $result = json_decode($result);
 add_avariable('result', $result);
 //[0]['legs'][0]['steps']
 $steps = $result->{'routes'}[0]->{'legs'}[0]->{'steps'};
+echo 'step = '.$result->{'routes'}[0]->{'legs'}[0]->{'distance'}->{'value'}.'<br>';
 $locations = array();
 $anchors = array();
 $num_points = 0;
@@ -41,6 +42,7 @@ $num_points = 0;
 
 $state_dis = array();
 $total_dis = 0;
+
 for ($i=0; $i<count($steps); $i++) {
 	array_push($anchors, $steps[$i]);
 	//$locationInfo = getState($steps[$i]->{'start_location'}->{'lat'}, $steps[$i]->{'start_location'}->{'lng'});
@@ -64,19 +66,54 @@ for ($i=0; $i<count($steps); $i++) {
 	$previous = $in_out[0];
 	$anchor = 0;
 	for ($j=1; $j<count($points2); $j++) {
-		if ($previous!=$in_out[$j] || $j==(count($points2)-1)) {
-			if (isset($state_dis[$in_out[$anchor]])) {
-				$state_dis[$in_out[$anchor]] += ($j- $anchor)*1.0/count($in_out)*$dis;	
+		if ($j==(count($points2)-1)) { //Last point
+			if ($previous!=$in_out[$j]) {
+				if (isset($state_dis[$in_out[$anchor]])) {
+					$state_dis[$in_out[$anchor]] += get_distance($points2[$anchor], $points2[$j-1]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;	
+				} else {
+					$state_dis[$in_out[$anchor]] = get_distance($points2[$anchor], $points2[$j-1]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;
+				}
+
+				$previous = $in_out[$j];
+				$anchor = $j;
 			} else {
-				$state_dis[$in_out[$anchor]] = ($j- $anchor)*1.0/count($in_out)*$dis;
+				if ($anchor == 0) {
+					if (isset($state_dis[$in_out[$anchor]])) {
+						$state_dis[$in_out[$anchor]] += $dis;	
+					} else {
+						$state_dis[$in_out[$anchor]] = $dis;
+					}	
+				} else {
+					if (isset($state_dis[$in_out[$anchor]])) {
+						$state_dis[$in_out[$anchor]] += get_distance($points2[$anchor], $points2[$j]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;	
+					} else {
+						$state_dis[$in_out[$anchor]] = get_distance($points2[$anchor], $points2[$j]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;
+					}					
+				}
+				
+				//echo 'state '.$previous.'='.$state_dis[$in_out[$anchor]].'<br>';
+				$previous = $in_out[$j];
+				$anchor = $j;
 			}
 
+		} else if ($previous!=$in_out[$j]) {
+			if (isset($state_dis[$in_out[$anchor]])) {
+				$state_dis[$in_out[$anchor]] += get_distance($points2[$anchor], $points2[$j]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;	
+				print 'get_distance= '.get_distance($points2[$anchor], $points2[$j-1]).'<br>';
+			} else {
+				$state_dis[$in_out[$anchor]] = get_distance($points2[$anchor], $points2[$j-1]);//($j- $anchor - 1)*1.0/(count($in_out)-1)*$dis;
+			}
+			// for ($k = 0; $k < count($in_out); $k++) {
+			// 	print 'in_out='.$in_out[$k].'<br>';
+			// }
+			add_avariable("in_out", $in_out);
+			print 'i='.$i.'<br>';
 			$previous = $in_out[$j];
-			$anchor = $j-1;
+			$anchor = $j;
 		}
 	}
 }
-
+print 'total_step = '.count($steps)."<br>";
 $total_state_dis = 0;
 print "-------------------------------<br>";
 for ($i=0;$i<count(array_keys($state_dis)); $i++) {
@@ -86,7 +123,7 @@ for ($i=0;$i<count(array_keys($state_dis)); $i++) {
 print "-------------------------------<br>";
 print "total_state_dis=".$total_state_dis*0.000621371192." mi<br>";
 print "total_dis=".$total_dis*0.000621371192." mi<br>";
-add_avariable("in_out", $in_out);
+
 add_avariable("anchors", $anchors);
 add_avariable("locations", $locations);
 add_avariable("state_dis", $state_dis);
@@ -136,9 +173,30 @@ $location = array();
 // }
 // add_avariable("a_location", $location);
 //echo $encoded;
-//print "num_points=".$num_points."<br>";
+print "num_points=".$num_points."<br>";
 
 print "Time duration: ".(microtime(true) - $time)."s<br>";
-
-
+// $polygon = array(
+//     new Point(0,5),
+//     new Point(3,5),
+//     new Point(3,0),
+//     new Point(4,3),
+//     new Point(0,5),
+// );
+  
+// $point1 = new Point(1,4);
+  
+// echo contains($point1,$polygon)?'IN':'OUT';
+// echo "<br />";
+  
+// $point2 = new Point(3,2);
+  
+// echo contains($point2,$polygon)?'IN':'OUT';
+// echo "<br />";
+  
+// $point3 = new Point(2,0.5);
+  
+// echo contains($point3,$polygon)?'IN':'OUT';
+$p = new Point(41.11246879, -119.71801758);
+echo contains($p, $polygon['CA'])?'IN':'OUT';
  ?>

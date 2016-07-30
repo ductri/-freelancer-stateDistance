@@ -1,0 +1,10 @@
+False: https://maps.googleapis.com/maps/api/directions/json?origin=".$cor1."&destination=".$cor2."&key=AIzaSyAq_4lcmeuCIbZ288vbXMnYowGL-PO-lxk
+
+True: http://localhost/freelancer/p2/?latSrc=39.3514885&lngSrc=-123.6643132&latDst=40.55734&lngDst=-122.388904
+
+From 39.3514885, -123.6643132 To 41.100246, -114.809832
+CA: 293.25472734437 mi
+NV: 326.23598886817 mi
+Trung gian: 39.468049, -120.002905
+
+41.310459, -123.042747 to 37.763367, -115.329188
